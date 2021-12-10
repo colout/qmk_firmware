@@ -209,7 +209,7 @@ void calculate_frame_length(uint16_t in_min, uint16_t in_max, uint16_t out_min, 
 
 bool oled_task_user(void) {
     calculate_wpm();
-    calculate_frame_length(50, 150, 150, 300);
+    calculate_frame_length(50, 100, 150, 300);
 
     if (timer_elapsed32(anim_timer) > anim_frame_duration) {
         anim_timer = timer_read32();
@@ -227,39 +227,30 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 }
 
 void draw_wpm_text(void) {
-    char wpm_str[3]; // Where to store the formatted text
-    sprintf(wpm_str, "%lu", wpm);  // edit the string to change wwhat shows up, edit %03d to change how many digits show up
-    oled_write_ln("WPM\n", false);
-    oled_write_ln(wpm_str, false);
-}
-
-static void print_status_narrow(void) {
-    // Print current layer
-    oled_write_ln("\n", false);
-
-    oled_write_ln("LAYER", false);
+    char txt[18]; // Where to store the formatted text
+    sprintf(txt, "WPM\n%ld\n\nLAYER", wpm);  // edit the string to change wwhat shows up, edit %03d to change how many digits show up
+    oled_write_ln(txt, false);
+    
     switch (get_highest_layer(layer_state)) {
         case 0:
-            oled_write_ln("Base\n", false);
+            oled_write_ln("Base\n\n", false);
             break;
         case 1:
-            oled_write_ln("Game\n", false);
+            oled_write_ln("Game\n\n", false);
             break;
         case 2:
-            oled_write_ln("Symb\n", true);
+            oled_write_ln("Symb\n\n", true);
             break;
         case 3:
-            oled_write_ln("Nav\n", true);
+            oled_write_ln("Nav\n\n", true);
             break;
         default:
-            oled_write_ln("Undef\n", true);
+            oled_write_ln("Undef\n\n", true);
     }
-    oled_write_ln("\n\n", false);
     led_t led_usb_state = host_keyboard_led_state();
     oled_write_ln((led_usb_state.caps_lock) ? "Caps" : "", true);
-    oled_write_ln((led_usb_state.num_lock) ? "Num" : "", true);
-    oled_write_ln((led_usb_state.scroll_lock) ? "Scrl" : "", true);
 }
+
 
 bool oled_task_user(void) {
     calculate_wpm();
@@ -269,7 +260,6 @@ bool oled_task_user(void) {
 
         if (oled_sleep()) {
             draw_wpm_text();
-            print_status_narrow();
         }
     }
     return false;
