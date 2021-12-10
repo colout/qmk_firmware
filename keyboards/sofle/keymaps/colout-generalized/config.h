@@ -31,7 +31,7 @@
 
 // Look out for performance problems.  For OLED Slave
 #define SPLIT_TRANSPORT_MIRROR
-#define RGBLIGHT_LAYERS
+//#define RGBLIGHT_LAYERS
 
 // Space saver
 //#define NO_ACTION_TAPPING  // this one breaks layers

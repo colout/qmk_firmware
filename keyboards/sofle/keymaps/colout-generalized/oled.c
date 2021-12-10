@@ -34,12 +34,10 @@
 bool oled_state = false;
 
 uint32_t anim_timer = 0;
-uint16_t anim_frame_duration = 200;
 
 uint8_t current_idle_frame = 0;
 uint8_t current_tap_frame = 0;
 
-uint32_t wpm = 0;
 uint32_t wpm_timer_from_start = 0;
 uint32_t wpm_timer_from_last_stroke = 0;
 uint32_t wpm_idle_time = 0;
@@ -55,7 +53,9 @@ bool oled_process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 
 
-void calculate_wpm (void) {
+uint16_t calculate_wpm (void) {
+    uint16_t wpm = 0;
+    
     // Key pressed after idle period, so we count as first stroke
     if (wpm_idle_time > WPM_IDLE_RESET_TIMEOUT) {
         wpm_timer_from_start = timer_read32();
@@ -73,6 +73,8 @@ void calculate_wpm (void) {
     }
     if (wpm > 999) wpm = 999;
     if (characters_typed == 0) wpm = 0;
+
+    return wpm;
 }
 
 
@@ -99,7 +101,7 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 	return OLED_ROTATION_180;
 }
 
-static void render_anim(void) {
+static void render_anim(uint16_t wpm) {
 
     // Idle animation
     static const char PROGMEM idle[IDLE_FRAMES][ANIM_SIZE] = {
@@ -164,7 +166,7 @@ static void render_anim(void) {
 
     };
 
-    void animation_phase(void) {
+    void animation_phase(uint16_t wpm) {
 
         if (wpm <=IDLE_SPEED) {
             current_idle_frame = (current_idle_frame + 1) % IDLE_FRAMES;
@@ -181,16 +183,16 @@ static void render_anim(void) {
         }
     }
 
-    animation_phase();
+    animation_phase(wpm);
 }
 
-void calculate_frame_length(uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max) {
+uint16_t calculate_frame_length(uint16_t wpm, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max) {
     // like an inverted lerp
     uint16_t in_range = in_max - in_min;  
     uint16_t out_range = out_max - out_min;
     
     // clamp input val                                                  // 0   110
-    anim_frame_duration = wpm;
+    uint16_t anim_frame_duration = wpm;
     if (wpm < in_min) anim_frame_duration = in_min;     // 
     if (wpm > in_max) anim_frame_duration = in_max;
 
@@ -205,16 +207,18 @@ void calculate_frame_length(uint16_t in_min, uint16_t in_max, uint16_t out_min, 
 
     // offset
     anim_frame_duration = anim_frame_duration + out_min;
+
+    return anim_frame_duration;
 }
 
 bool oled_task_user(void) {
-    calculate_wpm();
-    calculate_frame_length(50, 100, 150, 300);
+    uint16_t wpm = calculate_wpm();
+    uint16_t anim_frame_duration = calculate_frame_length(wpm, 50, 100, 150, 300);
 
     if (timer_elapsed32(anim_timer) > anim_frame_duration) {
         anim_timer = timer_read32();
         if (oled_sleep()) {
-            render_anim(); 
+            render_anim(wpm); 
         }
     }
     return false;
@@ -226,9 +230,10 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     return OLED_ROTATION_270;
 }
 
-void draw_wpm_text(void) {
+void draw_wpm_text(uint16_t wpm) {
     char txt[18]; // Where to store the formatted text
-    sprintf(txt, "WPM\n%ld\n\nLAYER", wpm);  // edit the string to change wwhat shows up, edit %03d to change how many digits show up
+    sprintf(txt, "WPM\n%d\n\nLAYER", wpm);  // edit the string to change wwhat shows up, edit %03d to change how many digits show up
+    sprintf(txt, "%d", KC_LEFT);
     oled_write_ln(txt, false);
     
     switch (get_highest_layer(layer_state)) {
@@ -253,13 +258,13 @@ void draw_wpm_text(void) {
 
 
 bool oled_task_user(void) {
-    calculate_wpm();
+    uint16_t wpm = calculate_wpm();
 
-    if (timer_elapsed32(anim_timer) > anim_frame_duration) {
+    if (timer_elapsed32(anim_timer) > 200) {  // Left side static frame duration
         anim_timer = timer_read32();
 
         if (oled_sleep()) {
-            draw_wpm_text();
+            draw_wpm_text(wpm);
         }
     }
     return false;

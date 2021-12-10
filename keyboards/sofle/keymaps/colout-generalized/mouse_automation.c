@@ -24,53 +24,74 @@ void mouseMove(int8_t x, int8_t y, uint8_t button, int16_t waiter) {
     pointing_device_send();
 }
 
+void mouseClick (void) {
+    mouseMove(0, 0, 1, 1);
+    mouseMove(0, 0, 0, 30);
+}
+
 void alignToScreen(void) {
-    SEND_STRING("KC_h");
-    
-    mouseMove(-127, 127, 0, 700);
-    for (uint8_t i=0; i<30; ++i) {
+    send_char(104); //h
+
+    mouseMove(-127, 127, 0, 100);
+    for (uint8_t i=20; i>0; --i) {
         mouseMove(-127, 127, 0, 1);
     }
-    mouseMove(127, -127, 0, 10);
-    mouseMove(0, -64, 0, 1);
+    mouseMove(127, -127, 0, 1);
+    mouseMove(0, -38, 0, 1);  // aligns with bottom of portrait.  supports lower resolutions (at least on y axis)
+
+    // Now we click on first hero
+    mouseClick();
+
+    // click to the lower left a bit in case of lower res
+    mouseMove(-50, 60, 0, 1);  
+    mouseClick();
+    mouseMove(50, -60, 0, 1); // move it back (should combine with next step tho)
 }
 
 void moveToHero(uint8_t s) {
-    for (uint8_t i=0; i<s; ++i) {
-        mouseMove(76, 0, 0, 1);  // move to hero
+    for (uint8_t i=s; i>0; --i) {
+        tap_code(KC_RIGHT); // right arrow
     }
 }
 
 void clickHero(void) {
-    mouseMove(0, 0, 1, 1);
-    mouseMove(0, 0, 0, 30);
-    mouseMove(0, 0, 1, 50);
-    mouseMove(0, 0, 0, 30);
+    for (uint8_t i=8; i>0; --i) {
+        mouseMove(123, 10, 0, 1);  // align to left side of "continue" button
+    }
+    mouseClick();
+
+
+    // Try again on the other side of continue (in case of lower res)
+    for (uint8_t i=3; i>0; --i) {
+        mouseMove(-123, 10, 0, 1);
+        mouseClick();
+    }
+
+}
+
+void selectCharacter(uint8_t s) {
+    alignToScreen(); 
+    moveToHero(s);
+    clickHero();
 }
 
 bool mouse_process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case KC_HERO1:
             if (record->event.pressed) {
-                alignToScreen();
-                moveToHero(2);
-                clickHero();
+                selectCharacter(2);
                 return false;
             }
             break;
         case KC_HERO2:
             if (record->event.pressed) {
-                alignToScreen();
-                moveToHero(6);
-                clickHero();
+                selectCharacter(6);
                 return false;
             }
             break;
         case KC_HERO3:
             if (record->event.pressed) {
-                alignToScreen();
-                moveToHero(7);
-                clickHero();
+                selectCharacter(7);
                 return false;
             }
             break;
