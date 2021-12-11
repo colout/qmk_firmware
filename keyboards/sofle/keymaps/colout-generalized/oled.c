@@ -233,7 +233,6 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 void draw_wpm_text(uint16_t wpm) {
     char txt[18]; // Where to store the formatted text
     sprintf(txt, "WPM\n%d\n\nLAYER", wpm);  // edit the string to change wwhat shows up, edit %03d to change how many digits show up
-    sprintf(txt, "%d", KC_LEFT);
     oled_write_ln(txt, false);
     
     switch (get_highest_layer(layer_state)) {

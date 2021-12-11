@@ -1,9 +1,11 @@
+#define PORTRAIT_UNIT 54      // 76 in 1440p
+                              // 54 in 1080p
+#define RESOLUTION_SCALAR 0.875  // Horizontal scalar 
+                                  // 0.875 == 1920
+                                  // 1 == 1920
+                                  // 1.333 == 1440
 
-enum my_keycodes {
-    KC_HERO1 = SAFE_RANGE, // 0x5da5
-    KC_HERO2,
-    KC_HERO3,
-};
+const int8_t portrait_unit = PORTRAIT_UNIT * RESOLUTION_SCALAR;
 
 void mouseMove(int8_t x, int8_t y, uint8_t button, int16_t waiter) {
     uint32_t pause_timer = timer_read32();
@@ -24,6 +26,11 @@ void mouseMove(int8_t x, int8_t y, uint8_t button, int16_t waiter) {
     pointing_device_send();
 }
 
+void movePortraitUnit (float x, float y) {  
+    mouseMove(portrait_unit * x, portrait_unit * y, 0, 1);  // move to hero
+}
+
+
 void mouseClick (void) {
     mouseMove(0, 0, 1, 1);
     mouseMove(0, 0, 0, 30);
@@ -31,70 +38,113 @@ void mouseClick (void) {
 
 void alignToScreen(void) {
     send_char(104); //h
-
-    mouseMove(-127, 127, 0, 100);
+    
+    mouseMove(-127, 127, 0, 200);
     for (uint8_t i=20; i>0; --i) {
         mouseMove(-127, 127, 0, 1);
     }
-    mouseMove(127, -127, 0, 1);
-    mouseMove(0, -38, 0, 1);  // aligns with bottom of portrait.  supports lower resolutions (at least on y axis)
 
-    // Now we click on first hero
-    mouseClick();
-
-    // click to the lower left a bit in case of lower res
-    mouseMove(-50, 60, 0, 1);  
-    mouseClick();
-    mouseMove(50, -60, 0, 1); // move it back (should combine with next step tho)
+    movePortraitUnit (1, -1); 
+    movePortraitUnit (1, -1); 
+    movePortraitUnit (0, -0.75);
+    //mouseMove(0, -38, 0, 1);  // aligns with bottom of portrait.  supports lower resolutions (at least on y axis)
 }
 
 void moveToHero(uint8_t s) {
     for (uint8_t i=s; i>0; --i) {
-        tap_code(KC_RIGHT); // right arrow
+        movePortraitUnit (1, 0); 
     }
 }
 
 void clickHero(void) {
-    for (uint8_t i=8; i>0; --i) {
-        mouseMove(123, 10, 0, 1);  // align to left side of "continue" button
-    }
     mouseClick();
-
-
-    // Try again on the other side of continue (in case of lower res)
-    for (uint8_t i=3; i>0; --i) {
-        mouseMove(-123, 10, 0, 1);
-        mouseClick();
-    }
-
-}
-
-void selectCharacter(uint8_t s) {
-    alignToScreen(); 
-    moveToHero(s);
-    clickHero();
+    mouseClick();
 }
 
 bool mouse_process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case KC_HERO1:
-            if (record->event.pressed) {
-                selectCharacter(2);
-                return false;
+    if (record->event.pressed) {
+        if (heroMetaLayer) {
+        switch (keycode) {
+            case KC_1:
+                if (record->event.pressed) {
+                    alignToScreen();
+                    moveToHero(2);
+                    clickHero();
+                    return false;
+                }
+                break;
+            case KC_2:
+                if (record->event.pressed) {
+                    alignToScreen();
+                    moveToHero(6);
+                    clickHero();
+                    return false;
+                }
+                break;
+            case KC_3:
+                if (record->event.pressed) {
+                    alignToScreen();
+                    moveToHero(7);
+                    clickHero();
+                    return false;
+                }
+                break;
+            case KC_Q:
+                if (record->event.pressed) {
+                    alignToScreen();
+                    movePortraitUnit (.5, 0);       
+                    moveToHero(16);
+                    clickHero();
+                    return false;
+                }
+                break;
+            case KC_W:
+                if (record->event.pressed) {
+                    alignToScreen();
+                    movePortraitUnit (.5, 0);  
+                    moveToHero(19);
+                    clickHero();
+                    return false;
+                }
+                break;
+            case KC_E:
+                if (record->event.pressed) {
+                    alignToScreen();
+                    movePortraitUnit (.5, 0);
+                    moveToHero(23);
+                    clickHero();
+                    return false;
+                }
+                break;
+           case KC_A:
+                if (record->event.pressed) {
+                    alignToScreen();
+                    movePortraitUnit (.5, 0);       
+                    moveToHero(26);
+                    clickHero();
+                    return false;
+                }
+                break;
+            case KC_S:
+                if (record->event.pressed) {
+                    alignToScreen();
+                    movePortraitUnit (.5, 0);  
+                    moveToHero(29);
+                    clickHero();
+                    return false;
+                }
+                break;
+            case KC_D:
+                if (record->event.pressed) {
+                    alignToScreen();
+                    movePortraitUnit (.5, 0);
+                    moveToHero(30);
+                    clickHero();
+                    return false;
+                }
+                break;
             }
-            break;
-        case KC_HERO2:
-            if (record->event.pressed) {
-                selectCharacter(6);
-                return false;
-            }
-            break;
-        case KC_HERO3:
-            if (record->event.pressed) {
-                selectCharacter(7);
-                return false;
-            }
-            break;
+        }
     }
     return true;
 }

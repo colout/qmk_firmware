@@ -1,5 +1,5 @@
 
-export MOUSEKEY_ENABLE = yes
+export MOUSEKEY_ENABLE = no
 
 
 include keyboards/sofle/keymaps/colout-generalized/rules.mk
