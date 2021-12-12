@@ -6,8 +6,11 @@ enum my_keycodes {
 };
 
 uint32_t timerAction = 0;
+uint32_t timerActionFromStart = 0;
+
 bool activeAction1 = false;
 bool activeAction2 = false;
+bool activeActionModifier = false;
 uint16_t stepAction = 0;
 
 
@@ -68,6 +71,8 @@ bool overwatch_process_record_user(uint16_t keycode, keyrecord_t *record) {
                     if (record->event.pressed) {
                         if (!activeAction1 && !activeAction2) {
                             stepAction = 0;
+                            timerActionFromStart = 0;
+                            if (activeActionModifier) timerActionFromStart = timer_read32();
                             activeAction1 = true;
                         }
                     }
@@ -90,8 +95,20 @@ bool overwatch_process_record_user(uint16_t keycode, keyrecord_t *record) {
                 default:   
                     activeAction2 = false;
                     break;
+            } 
+        } else if (keycode == KC_LALT) {
+                switch (selectedHero) {
+                    case HERO_ZARYA:
+                        if (!activeAction1 && !activeAction2) {  // can only change mod state if no action
+                            if (record->event.pressed) {
+                                activeActionModifier = true;
+                            } else {
+                                activeActionModifier = false;
+                            }
+                        }
+                        break;
             }
-        } 
+        }
     } else {
         activeAction1 = false;
         activeAction2 = false;
@@ -125,44 +142,68 @@ void housekeeping_task_user(void) {
                 }
             }
             break;
-        case HERO_ZARYA: //Double is 5.25 sec after shooting in air
+        case HERO_ZARYA:
             //
             // Zarya Single Rocket Jump
             //
-            if (activeAction1) { 
+            if (activeAction1) {
+                // Step 0: Run Backwards if modifer
+                if (stepAction == 1) {
+                    if (activeActionModifier) {
+                        register_code(KC_S);
+                        if (timer_elapsed32(timerActionFromStart) > HERO_ZARYA_DOUBLE_ROCKET_RUNNING_TIME) { 
+                            unregister_code(KC_S);
+                            register_code(KC_W);
+                            stepAction++;
+                        }
+                    } else {
+                        stepAction++; // Skip if no modifiers
+                    }
                 // Step 1: Look at the floor
-                if (stepAction <= HERO_ZARYA_STEPS_MOVEDOWN1) {
-                    mouseMove(0, 127, 0);
-                    stepAction++;
-                // Step 2: Rocket comes out here
                 } else if (stepAction <= HERO_ZARYA_STEPS_MOVEDOWN1 + 1) {
+                    mouseMove(0, 127, 0);
+
+                    // Keep looking down until last frame.  
+                    // If on late frame, wait until timer before final increment
+                    if (stepAction < HERO_ZARYA_STEPS_MOVEDOWN1 + 1) {
+                        stepAction++;
+                    } else {  // on last frame of step
+                        // If 2x running time (we already ran backward)
+                        if (timer_elapsed32(timerActionFromStart) > 2 * HERO_ZARYA_DOUBLE_ROCKET_RUNNING_TIME) { 
+                            stepAction++;
+                        } 
+                    }
+
+                // Step 2: Rocket comes out here
+                } else if (stepAction <= HERO_ZARYA_STEPS_MOVEDOWN1 + 2) {
                     mouseMove(0, 0, 2);
                     timerAction = timer_read32();
                     stepAction++;
                 // Step 3: Mouse up 30ms later
                 //         Keep looking down until mouse up
-
-                } else if (stepAction <= HERO_ZARYA_STEPS_MOVEDOWN1 + 2) {
+                } else if (stepAction <= HERO_ZARYA_STEPS_MOVEDOWN1 + 3) {
                     mouseMove(0, 127, 0);
-                    if (timer_elapsed32(timerAction) > 50) { 
+
+                    if (timer_elapsed32(timerAction) > HERO_ZARYA_ROCKET_MOUSE_CLICK_TIME) { 
                         mouseMove(0, 0, 0);
                         timerAction = timer_read32();
                         stepAction++;
                     }
                 // Step 4: Jump HERO_ZARYA_ROCKET_HOLD_TIME late
                 //         Keep looking down until jump
-                } else if (stepAction <= HERO_ZARYA_STEPS_MOVEDOWN1 + 3) {
+                } else if (stepAction <= HERO_ZARYA_STEPS_MOVEDOWN1 + 4) {
                     mouseMove(0, 127, 0);
                     if (timer_elapsed32(timerAction) > HERO_ZARYA_ROCKET_HOLD_TIME) { 
                         tap_code(KC_SPACE);
                         stepAction++;
                     }
                 // Step 5: Reset to horizon
-                } else if (stepAction <= HERO_ZARYA_STEPS_MOVEDOWN1 + HERO_ZARYA_STEPS_MOVEUP1 + 3) {
+                } else if (stepAction <= HERO_ZARYA_STEPS_MOVEDOWN1 + HERO_ZARYA_STEPS_MOVEUP1 + 4) {
                     mouseMove(0, -127, 0);
                     stepAction++;
                 } else {
                     activeAction1 = false;
+                    activeActionModifier = false;
                 }
             //
             // Zarya Single Rocket Jump
@@ -177,11 +218,11 @@ void housekeeping_task_user(void) {
                     mouseMove(0, 0, 2);
                     timerAction = timer_read32();
                     stepAction++;
-                // Step 3: Mouse up 30ms later
+                // Step 3: Mouse up some time later
                 //         Keep looking up until mouse up
                 } else if (stepAction <= HERO_ZARYA_STEPS_MOVEDOWN1 + 2) {
                     mouseMove(0, -127, 0);
-                    if (timer_elapsed32(timerAction) > 50) { 
+                    if (timer_elapsed32(timerAction) > HERO_ZARYA_ROCKET_MOUSE_CLICK_TIME) { 
                         mouseMove(0, 0, 0);
                         timerAction = timer_read32();
                         stepAction++;
@@ -192,10 +233,15 @@ void housekeeping_task_user(void) {
                     stepAction++;
                 // Step 5: Wait 5 sec
                 } else if (stepAction <= HERO_ZARYA_STEPS_MOVEDOWN1 + HERO_ZARYA_STEPS_MOVEUP1 + 4) {
-                    if (timer_elapsed32(timerAction) > HERO_ZARYA_DOUBLE_ROCKET_HOLD_TIME) stepAction++;
+                    if (!activeActionModifier) {
+                        if (timer_elapsed32(timerAction) > HERO_ZARYA_DOUBLE_ROCKET_HOLD_TIME) stepAction++;
+                    } else {
+                        if (timer_elapsed32(timerAction) > HERO_ZARYA_DOUBLE_ROCKET_HOLD_TIME_RUNNING) stepAction++;
+                    }
                 } else {
                     activeAction2 = false;
                     stepAction = 0;
+                    timerActionFromStart = timer_read32();
                     activeAction1 = true;
                 }
             }
