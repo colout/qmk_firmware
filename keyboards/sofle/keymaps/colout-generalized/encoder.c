@@ -8,10 +8,18 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             tap_code(KC_VOLD);
         }
     } else if (index == 1) {
-        if (clockwise) {
-            tap_code(KC_PGDOWN);
+        if (layer_state_is(1)) {  //TODO: Move to left encoder.
+            if (clockwise) {
+                incrementHero(1);
+            } else {
+                incrementHero(-1);
+            }
         } else {
-            tap_code(KC_PGUP);
+            if (clockwise) {
+                tap_code(KC_PGDOWN);
+            } else {
+                tap_code(KC_PGUP);
+            }
         }
     }
     return true;

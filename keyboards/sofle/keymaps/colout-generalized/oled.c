@@ -225,15 +225,14 @@ bool oled_task_user(void) {
 }
 #endif
 #ifdef LEFT_SIDE
-
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     return OLED_ROTATION_270;
 }
 
 void draw_wpm_text(uint16_t wpm) {
-    char txt[18]; // Where to store the formatted text
-    sprintf(txt, "WPM\n%d\n\nLAYER", wpm);  // edit the string to change wwhat shows up, edit %03d to change how many digits show up
-    oled_write_ln(txt, false);
+    char txt[18+13]; // Where to store the formatted text
+    sprintf(txt, "%sWPM\n%d\n\nLAYER",overwatchTxt, wpm);  // edit the string to change wwhat shows up, edit %03d to change how many digits show up
+    oled_write(txt, false);
     
     switch (get_highest_layer(layer_state)) {
         case 0:

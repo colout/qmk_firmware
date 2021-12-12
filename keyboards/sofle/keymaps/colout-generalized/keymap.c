@@ -1,18 +1,20 @@
+
 #include QMK_KEYBOARD_H
+#include "globals.c"
+#include "helpers.c"
+#include "overwatch_custom.c"
+#include "custom_rgb.c"
 #include "oled.c"
 #include "encoder.c"
-#include "custom_rgb.c"
-#include "mouse_automation.c"
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  oled_process_record_user(keycode, record);
+    oled_process_record_user(keycode, record);
 
-  #ifdef LEFT_SIDE
-  mouse_process_record_user(keycode, record);
-  if (!rgblayeroverride_process_record_user(keycode, record)) return false;  
-  #endif
+    #ifdef LEFT_SIDE
+    overwatch_process_record_user(keycode, record);
+    #endif
 
-  return true;
+    return true;
 }
 
 // For two way key communication for oleds on slave
