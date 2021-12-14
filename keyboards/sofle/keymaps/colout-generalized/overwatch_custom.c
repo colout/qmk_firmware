@@ -169,7 +169,7 @@ void housekeeping_task_user(void) {
                         stepAction++;
                     } else {  // on last frame of step
                         // If 2x running time (we already ran backward)
-                        if (timer_elapsed32(timerActionFromStart) > 2 * HERO_ZARYA_DOUBLE_ROCKET_RUNNING_TIME) { 
+                        if (timer_elapsed32(timerActionFromStart) > (2 * HERO_ZARYA_DOUBLE_ROCKET_RUNNING_TIME)-HERO_ZARYA_ROCKET_MOUSE_CLICK_TIME-HERO_ZARYA_ROCKET_HOLD_TIME) { 
                             stepAction++;
                         } 
                     }
@@ -241,7 +241,7 @@ void housekeeping_task_user(void) {
                 } else {
                     activeAction2 = false;
                     stepAction = 0;
-                    timerActionFromStart = timer_read32();
+                    if (activeActionModifier) timerActionFromStart = timer_read32();
                     activeAction1 = true;
                 }
             }
