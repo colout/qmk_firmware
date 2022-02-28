@@ -251,6 +251,7 @@ void draw_wpm_text(uint16_t wpm) {
             oled_write_ln("Undef\n\n", true);
     }
     led_t led_usb_state = host_keyboard_led_state();
+    oled_write_ln((isMacMode) ? "MacOS" : "", true);
     oled_write_ln((led_usb_state.caps_lock) ? "Caps" : "", true);
 }
 

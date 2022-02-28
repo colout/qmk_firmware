@@ -4,11 +4,13 @@
 #include "helpers.c"
 #include "overwatch_custom.c"
 #include "custom_rgb.c"
+#include "mac_win_modifiers.c"
 #include "oled.c"
 #include "encoder.c"
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     oled_process_record_user(keycode, record);
+    return mac_win_modifiers_process_record_user(keycode, record);
 
     #ifdef LEFT_SIDE
     overwatch_process_record_user(keycode, record);

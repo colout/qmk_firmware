@@ -26,6 +26,8 @@
 #define MOUSEKEY_MAX_SPEED 20
 #define MOUSEKEY_MOVE_DELTA 1
 #define MOUSEKEY_INITIAL_SPEED 1
+#define ENCODER_RESOLUTIONS { 4, 2 }  // Left encoder seems to have double-output issue but right does not.
+
 
 #define USB_POLLING_INTERVAL_MS 1
 

@@ -1,5 +1,3 @@
-
-
 #define HERO_COUNT 4
 
 #define HERO_NONE 0
@@ -33,3 +31,4 @@ const int16_t HERO_ZARYA_DOUBLE_ROCKET_HOLD_TIME_RUNNING = (HERO_ZARYA_ROCKET_RU
 
 char overwatchTxt[14] = {0};
 int8_t selectedHero = HERO_NONE;
+bool isMacMode = false;
