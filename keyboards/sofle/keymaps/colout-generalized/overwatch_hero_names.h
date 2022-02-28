@@ -36,6 +36,15 @@
     overwatchTxt[10] = '\n'; \
     overwatchTxt[11] = '\n';
 
+#define SET_TEXT_REIN \
+    overwatchTxt[5] = 'R'; \
+    overwatchTxt[6] = 'e'; \
+    overwatchTxt[7] = 'i'; \
+    overwatchTxt[8] = 'n'; \
+    overwatchTxt[9] = '\n'; \
+    overwatchTxt[10] = '\n'; \
+    overwatchTxt[11] = '\n';
+
 #define SET_TEXT_ZARYA \
     overwatchTxt[5] = 'Z'; \
     overwatchTxt[6] = 'a'; \

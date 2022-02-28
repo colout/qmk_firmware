@@ -1,8 +1,8 @@
 #include "overwatch_hero_names.h" // To save on space and make things readable
 
 enum my_keycodes {
-    KC_OVERWATCH_ACTION1 = 0x5dae, // 0x5daf
-    KC_OVERWATCH_ACTION2, // 0x5dae
+    KC_OVERWATCH_ACTION1 = 0x5dae,
+    KC_OVERWATCH_ACTION2, // 0x5daf
 };
 
 uint32_t timerAction = 0;
@@ -24,6 +24,10 @@ void heroInit (int8_t hero) {
         case HERO_MERCY:
             SET_TEXT_MERCY
             setLayerConfig(0, 0, 255, RGBLIGHT_MODE_BREATHING + 2);
+            break;
+        case HERO_REIN:
+            SET_TEXT_REIN
+            setLayerConfig(169, 200, 255, RGBLIGHT_MODE_BREATHING + 2);
             break;
         case HERO_ZARYA:
             SET_TEXT_ZARYA
@@ -48,7 +52,7 @@ bool overwatch_process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (layer_state_is(1)) {
         if (keycode == KC_OVERWATCH_ACTION1) {
             switch (selectedHero) {
-                case HERO_LUCIO:
+                case HERO_LUCIO:  // Hold shift ctl until 1 second after release
                     if (record->event.pressed) {
                         activeAction1 = true;
                     } else {
@@ -65,6 +69,18 @@ bool overwatch_process_record_user(uint16_t keycode, keyrecord_t *record) {
                         // on key up, start timer and enable action
                         timerAction = timer_read32();
                         activeAction1 = true;
+                    }
+                    break;
+
+                case HERO_REIN:  // Swing
+                    if (record->event.pressed) {
+                        stepAction = 0;
+                        timerAction = timer_read32();
+                        activeAction2 = true;
+                    } else {
+                        activeAction2 = false;
+                        mouseMove(0,0,0);
+
                     }
                     break;
                 case HERO_ZARYA:
@@ -84,6 +100,15 @@ bool overwatch_process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         } else if (keycode == KC_OVERWATCH_ACTION2) {
             switch (selectedHero) {
+                case HERO_REIN:  // Shield hop
+                    if (record->event.pressed) {
+                        stepAction = 0;
+                        timerAction = timer_read32();
+                        activeAction1 = true;
+                    } else {
+                        activeAction1 = false;
+                    }
+                    break;
                 case HERO_ZARYA:
                     if (record->event.pressed) {
                         if (!activeAction1 && !activeAction2) {
@@ -115,6 +140,7 @@ bool overwatch_process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 }
+
 void housekeeping_task_user(void) {
     switch (selectedHero) {
         case HERO_LUCIO: 
@@ -142,6 +168,79 @@ void housekeeping_task_user(void) {
                 }
             }
             break;
+        case HERO_REIN:  
+            //
+            // Rein Shield Hop
+            //
+
+            // Step 0 Jump and Shield
+            if (activeAction1) { 
+                if (stepAction == 0) {
+                    tap_code(KC_SPACE);
+                    mouseMove(0,0,2);
+                    stepAction = 1;
+                }
+            }
+
+            // Step 2 Release Shield
+            if (stepAction == 1) {
+                if (timer_elapsed32(timerAction) > 600) {
+                    mouseMove(0,0,0);
+                    stepAction = 2;
+                }
+            }
+
+            // Step 3 Wait before next jump
+            if (stepAction == 2) {
+                if (timer_elapsed32(timerAction) > 700) {
+                    timerAction = timer_read32();
+                    stepAction = 0;
+                }
+            }
+
+            //
+            // Rein Corner Swing
+            //
+            if (activeAction2) { 
+                if (stepAction == 0) {
+                    mouseMove(0,0,1);
+                    stepAction = 1;
+                }
+                
+                else if (stepAction <= REIN_SWING_STEPS) {
+                    if (timer_elapsed32(timerAction) > 400) {
+                        mouseMove(127,0,1);
+                        stepAction++;
+                    }
+                }
+                else if (stepAction <= REIN_SWING_STEPS * 2) {
+                    if (timer_elapsed32(timerAction) > 500) {
+                        mouseMove(-127,0,1);
+                        stepAction++;
+                    }
+                }
+                
+                else if (stepAction <= REIN_SWING_STEPS * 3) {
+                    if (timer_elapsed32(timerAction) > 400 + REIN_SWING_FULL_CYCLE_TIME / 2) {
+                        mouseMove(-127,0,1);
+                        stepAction++;
+                    }
+                }
+                else if (stepAction <= REIN_SWING_STEPS * 4) {
+                    if (timer_elapsed32(timerAction) > 500 + REIN_SWING_FULL_CYCLE_TIME / 2) {
+                        mouseMove(127,0,1);
+                        stepAction++;
+                    }
+                }
+                else if (timer_elapsed32(timerAction) > REIN_SWING_FULL_CYCLE_TIME) {
+                    timerAction = timer_read32();
+                    stepAction = 0;
+                }
+            }
+
+
+
+            break;
         case HERO_ZARYA:
             //
             // Zarya Single Rocket Jump
@@ -151,7 +250,7 @@ void housekeeping_task_user(void) {
                 if (stepAction == 1) {
                     if (activeActionModifier) {
                         register_code(KC_S);
-                        if (timer_elapsed32(timerActionFromStart) > HERO_ZARYA_DOUBLE_ROCKET_RUNNING_TIME) { 
+                        if (timer_elapsed32(timerActionFromStart) > HERO_ZARYA_ROCKET_RUNNING_TIME) { 
                             unregister_code(KC_S);
                             register_code(KC_W);
                             stepAction++;
@@ -169,7 +268,7 @@ void housekeeping_task_user(void) {
                         stepAction++;
                     } else {  // on last frame of step
                         // If 2x running time (we already ran backward)
-                        if (timer_elapsed32(timerActionFromStart) > (2 * HERO_ZARYA_DOUBLE_ROCKET_RUNNING_TIME)-HERO_ZARYA_ROCKET_MOUSE_CLICK_TIME-HERO_ZARYA_ROCKET_HOLD_TIME) { 
+                        if (timer_elapsed32(timerActionFromStart) > (2 * HERO_ZARYA_ROCKET_RUNNING_TIME)-HERO_ZARYA_ROCKET_MOUSE_CLICK_TIME-HERO_ZARYA_ROCKET_HOLD_TIME) { 
                             stepAction++;
                         } 
                     }
