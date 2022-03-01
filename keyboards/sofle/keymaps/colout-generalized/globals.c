@@ -1,3 +1,9 @@
+
+enum my_keycodes {
+    KC_OVERWATCH_ACTION1 = 0x5dae, // 0x5daf
+    KC_OVERWATCH_ACTION2, // 0x5dae
+};
+
 #define HERO_COUNT 4
 
 #define HERO_NONE 0

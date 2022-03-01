@@ -1,10 +1,5 @@
 #include "overwatch_hero_names.h" // To save on space and make things readable
 
-enum my_keycodes {
-    KC_OVERWATCH_ACTION1 = 0x5dae,
-    KC_OVERWATCH_ACTION2, // 0x5daf
-};
-
 uint32_t timerAction = 0;
 uint32_t timerActionFromStart = 0;
 

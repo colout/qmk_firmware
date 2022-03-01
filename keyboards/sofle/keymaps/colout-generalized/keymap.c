@@ -1,8 +1,12 @@
 
 #include QMK_KEYBOARD_H
 #include "globals.c"
-#include "helpers.c"
+#include "helpers.c" 
+#ifdef LEFT_SIDE
 #include "overwatch_custom.c"
+#else
+#include "overwatch_custom_stub.c"
+#endif
 #include "custom_rgb.c"
 #include "mac_win_modifiers.c"
 #include "oled.c"
