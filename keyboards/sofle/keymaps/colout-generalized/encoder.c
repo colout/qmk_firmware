@@ -8,7 +8,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             tap_code(KC_VOLD);
         }
     } else if (index == 1) {
-        if (layer_state_is(1)) {  //TODO: Move to left encoder.
+        if (layer_state_is(_GAME)) {  //TODO: Move to left encoder.
             if (clockwise) {
                 incrementHero(1);
             } else {
