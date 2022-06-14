@@ -107,16 +107,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______,   _______,   _______,    _______,    _______,    _______,                      _______,    _______,    _______,    _______,    _______,  _______, \
   _______,   _______,   _______,    _______,    _______,    _______,                      _______,    _______,    _______,    _______,    _______,  _______, \
   _______,   _______,   _______,    _______,    _______,    _______, KC_OVERWATCH_ACTION2,    _______, _______,    _______, _______,  _______, _______,  _______, \
-                 KC_OVERWATCH_ACTION2, _______, KC_SPACE, KC_OVERWATCH_ACTION1, KC_ENT,                           _______, _______, _______, _______, _______ \
+                 KC_LALT, KC_OVERWATCH_ACTION1, KC_LCTRL, KC_SPACE, KC_ENTER,                           _______, _______, _______, _______, _______ \
 )};
 
 
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    overwatch_process_record_user(keycode, record);
 
     #ifdef LEFT_SIDE
+    overwatch_process_record_user(keycode, record);
     #endif
 
     oled_process_record_user(keycode, record);
