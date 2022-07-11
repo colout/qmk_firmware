@@ -5,7 +5,7 @@
     overwatchTxt[1] = 'E'; \
     overwatchTxt[2] = 'R'; \
     overwatchTxt[3] = 'O'; \
-    overwatchTxt[4] = '\n'; 
+    overwatchTxt[4] = '\n';
 
 
 #define SET_TEXT_NONE \
@@ -16,7 +16,7 @@
     overwatchTxt[9] = ' '; \
     overwatchTxt[10] = '\n'; \
     overwatchTxt[11] = '\n';
-    
+
 #define SET_TEXT_LUCIO \
     overwatchTxt[5] = 'L'; \
     overwatchTxt[6] = 'u'; \
@@ -26,7 +26,7 @@
     overwatchTxt[10] = '\n'; \
     overwatchTxt[11] = '\n';
 
-    
+
 #define SET_TEXT_MERCY \
     overwatchTxt[5] = 'M'; \
     overwatchTxt[6] = 'e'; \
@@ -36,11 +36,29 @@
     overwatchTxt[10] = '\n'; \
     overwatchTxt[11] = '\n';
 
+#define SET_TEXT_REIN \
+    overwatchTxt[5] = 'R'; \
+    overwatchTxt[6] = 'e'; \
+    overwatchTxt[7] = 'i'; \
+    overwatchTxt[8] = 'n'; \
+    overwatchTxt[9] = ' '; \
+    overwatchTxt[10] = '\n'; \
+    overwatchTxt[11] = '\n';
+
 #define SET_TEXT_ZARYA \
     overwatchTxt[5] = 'Z'; \
     overwatchTxt[6] = 'a'; \
     overwatchTxt[7] = 'r'; \
     overwatchTxt[8] = 'y'; \
     overwatchTxt[9] = 'a'; \
+    overwatchTxt[10] = '\n'; \
+    overwatchTxt[11] = '\n';
+
+#define SET_TEXT_ASHE \
+    overwatchTxt[5] = 'A'; \
+    overwatchTxt[6] = 's'; \
+    overwatchTxt[7] = 'h'; \
+    overwatchTxt[8] = 'e'; \
+    overwatchTxt[9] = ' '; \
     overwatchTxt[10] = '\n'; \
     overwatchTxt[11] = '\n';

@@ -26,6 +26,8 @@
 #define MOUSEKEY_MAX_SPEED 20
 #define MOUSEKEY_MOVE_DELTA 1
 #define MOUSEKEY_INITIAL_SPEED 1
+#define ENCODER_RESOLUTIONS { 4, 2 }  // Left encoder seems to have double-output issue but right does not.
+
 
 #define USB_POLLING_INTERVAL_MS 1
 
@@ -44,7 +46,7 @@
 see https://docs.qmk.fm/#/feature_split_keyboard?id=setting-handedness
 for more options.
 */
-//#define SPLIT_USB_DETECT 
+//#define SPLIT_USB_DETECT
 
 #if defined(KEYBOARD_sofle_rev1)
 // Add RGB underglow and top facing lighting

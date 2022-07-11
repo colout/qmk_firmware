@@ -29,7 +29,7 @@
 #define WPM_IDLE_RESET_TIMEOUT 5000
 
 //600000; // 10 minutes
-#define OLED_TIMEOUT_MS 600000 
+#define OLED_TIMEOUT_MS 600000
 
 bool oled_state = false;
 
@@ -55,11 +55,11 @@ bool oled_process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 uint16_t calculate_wpm (void) {
     uint16_t wpm = 0;
-    
+
     // Key pressed after idle period, so we count as first stroke
     if (wpm_idle_time > WPM_IDLE_RESET_TIMEOUT) {
         wpm_timer_from_start = timer_read32();
-        characters_typed = 0;            
+        characters_typed = 0;
     }
 
     wpm_idle_time = timer_elapsed32(wpm_timer_from_last_stroke);
@@ -188,12 +188,12 @@ static void render_anim(uint16_t wpm) {
 
 uint16_t calculate_frame_length(uint16_t wpm, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max) {
     // like an inverted lerp
-    uint16_t in_range = in_max - in_min;  
+    uint16_t in_range = in_max - in_min;
     uint16_t out_range = out_max - out_min;
-    
+
     // clamp input val                                                  // 0   110
     uint16_t anim_frame_duration = wpm;
-    if (wpm < in_min) anim_frame_duration = in_min;     // 
+    if (wpm < in_min) anim_frame_duration = in_min;     //
     if (wpm > in_max) anim_frame_duration = in_max;
 
     // offset input to 0
@@ -218,7 +218,7 @@ bool oled_task_user(void) {
     if (timer_elapsed32(anim_timer) > anim_frame_duration) {
         anim_timer = timer_read32();
         if (oled_sleep()) {
-            render_anim(wpm); 
+            render_anim(wpm);
         }
     }
     return false;
@@ -233,24 +233,25 @@ void draw_wpm_text(uint16_t wpm) {
     char txt[18+13]; // Where to store the formatted text
     sprintf(txt, "%sWPM\n%d\n\nLAYER",overwatchTxt, wpm);  // edit the string to change wwhat shows up, edit %03d to change how many digits show up
     oled_write(txt, false);
-    
+
     switch (get_highest_layer(layer_state)) {
-        case 0:
+        case _BASE:
             oled_write_ln("Base\n\n", false);
             break;
-        case 1:
+        case _GAME:
             oled_write_ln("Game\n\n", false);
             break;
-        case 2:
+        case _LOWER:
             oled_write_ln("Symb\n\n", true);
             break;
-        case 3:
+        case _RAISE:
             oled_write_ln("Nav\n\n", true);
             break;
         default:
             oled_write_ln("Undef\n\n", true);
     }
     led_t led_usb_state = host_keyboard_led_state();
+    oled_write_ln((isMacMode) ? "MacOS" : "", true);
     oled_write_ln((led_usb_state.caps_lock) ? "Caps" : "", true);
 }
 
