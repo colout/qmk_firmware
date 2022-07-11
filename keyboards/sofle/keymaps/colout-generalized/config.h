@@ -15,6 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config_common.h"
+
+
 
 #undef MK_3_SPEED
 #undef MK_COMBINED
@@ -23,9 +26,14 @@
 #define MOUSEKEY_MAX_SPEED 20
 #define MOUSEKEY_MOVE_DELTA 1
 #define MOUSEKEY_INITIAL_SPEED 1
+#define ENCODER_RESOLUTIONS { 4, 2 }  // Left encoder seems to have double-output issue but right does not.
 
 
-#define RGBLIGHT_LAYERS
+#define USB_POLLING_INTERVAL_MS 1
+
+// Look out for performance problems.  For OLED Slave
+#define SPLIT_TRANSPORT_MIRROR
+//#define RGBLIGHT_LAYERS
 
 // Space saver
 //#define NO_ACTION_TAPPING  // this one breaks layers
@@ -38,12 +46,7 @@
 see https://docs.qmk.fm/#/feature_split_keyboard?id=setting-handedness
 for more options.
 */
-//#define SPLIT_USB_DETECT 
-
-//#if defined(LEFT_SIDE)
-//#    define LEFT_SIDE
-//#endif
-
+//#define SPLIT_USB_DETECT
 
 #if defined(KEYBOARD_sofle_rev1)
 // Add RGB underglow and top facing lighting

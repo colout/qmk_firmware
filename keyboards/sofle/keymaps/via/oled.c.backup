@@ -29,80 +29,54 @@
 #define ANIM_SIZE 512
 #define WPM_IDLE_RESET_TIMEOUT 3000
 
-//600000; // 10 minutes
-#define OLED_TIMEOUT_MS 10000 
-
-bool oled_state = false;
 
 uint32_t anim_timer = 0;
+uint32_t anim_sleep = 0;
 uint8_t current_idle_frame = 0;
 uint8_t current_tap_frame = 0;
 
-uint32_t wpm = 0;
+uint32_t wpm = 10;
 uint32_t wpm_timer_from_start = 0;
 uint32_t wpm_timer_from_last_stroke = 0;
-uint32_t wpm_idle_time = 0;
 uint32_t characters_typed = 0;
 
-void keyboard_pre_init_user(void) {
-    wpm_timer_from_start = timer_read32();
-    wpm_timer_from_last_stroke = timer_read32();
-    anim_timer = timer_read32();
-}
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+
+static long int oled_timeout = 600000; // 10 minutes
+
+// hacky wpm measurment:
+// - Every space key, add one. 
+// 
+bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
+
+        // Key pressed after idle period, so we count as first stroke
+        if (timer_elapsed32(wpm_timer_from_last_stroke) > WPM_IDLE_RESET_TIMEOUT) {
+            wpm_timer_from_start = timer_read32();
+            characters_typed = 0;            
+        }
+            
         characters_typed++;
-        wpm_timer_from_last_stroke=timer_read32();
     }
     return true;
 }
 
 
-
-void calculate_wpm (void) {
-    // Key pressed after idle period, so we count as first stroke
-    if (wpm_idle_time > WPM_IDLE_RESET_TIMEOUT) {
-        wpm_timer_from_start = timer_read32();
-        characters_typed = 0;            
-    }
-
-    wpm_idle_time = timer_elapsed32(wpm_timer_from_last_stroke);
-    uint32_t time_from_start = timer_read32()-wpm_timer_from_start;
-
-    if (time_from_start > 2 && characters_typed > 5 * 5) {  // wait for 2 seconds and 5 words to be typed
-        wpm = characters_typed / ((time_from_start)/1000) * 60/5;   // divide cpm by 5 for approximate wpm
-    } else {
-        wpm = 0;
-    }
-    if (wpm > 999) wpm = 999;
-}
-
-
-bool oled_sleep(void) {
-    if (wpm_idle_time < OLED_TIMEOUT_MS) {
-        if (!oled_state) {
-            oled_on();
-            oled_state = true;
-        }
-    } else {
-        if (oled_state) {
-            oled_off();
-            oled_state = false;
-        }
-    }
-    return oled_state;
-}
-
-#ifdef LEFT_SIDE
-
-
-
+//
+// Rotate OLED display
+//
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-	return OLED_ROTATION_0;
+	if (is_keyboard_master()) return OLED_ROTATION_180;
+    //else return rotation; 
+    else return OLED_ROTATION_270;
 }
+
+//
+// Render right OLED display animation
+//
 
 static void render_anim(void) {
+    
 
     // Idle animation
     static const char PROGMEM idle[IDLE_FRAMES][ANIM_SIZE] = {
@@ -184,72 +158,35 @@ static void render_anim(void) {
         }
     }
 
-    if (timer_elapsed32(anim_timer) > ANIM_FRAME_DURATION) {
-        anim_timer = timer_read32();
-        animation_phase();
+    if (wpm != 000) {
+        oled_on();
+
+        if (timer_elapsed32(anim_timer) > ANIM_FRAME_DURATION) {
+            anim_timer = timer_read32();
+            animation_phase();
+        }
+
+        anim_sleep = timer_read32();
+    } else {
+        if (timer_elapsed32(anim_sleep) > oled_timeout) {
+            oled_off();
+        } else {
+            if (timer_elapsed32(anim_timer) > ANIM_FRAME_DURATION) {
+                anim_timer = timer_read32();
+                animation_phase();
+            }
+        }
     }
 }
 
 bool oled_task_user(void) {
-    calculate_wpm();
-
-    if (oled_sleep()) {
-        render_anim(); 
-    }
+    if (is_keyboard_master()) {
+        // Left side
+        render_anim();
+    } else {
+        render_anim();
+    } 
     return false;
-}
-#endif
-#ifndef LEFT_SIDE
-
-oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    return OLED_ROTATION_270;
-}
-
-void draw_wpm_text(void) {
-    char wpm_str[15]; // Where to store the formatted text
-    sprintf(wpm_str, "%lu", wpm);  // edit the string to change wwhat shows up, edit %03d to change how many digits show up
-
-    oled_write("WPM\n", false);
-    oled_write_ln(wpm_str, false);
-}
-
-static void print_status_narrow(void) {
-    // Print current layer
-    oled_write("\n", false);
-
-    oled_write("LAYER", false);
-    switch (get_highest_layer(layer_state)) {
-        case 0:
-            oled_write("Base\n", false);
-            break;
-        case 1:
-            oled_write("Game\n", false);
-            break;
-        case 2:
-            oled_write("Symb\n", true);
-            break;
-        case 3:
-            oled_write("Nav\n", true);
-            break;
-        default:
-            oled_write("Undef\n", true);
-    }
-    oled_write("\n\n", false);
-    led_t led_usb_state = host_keyboard_led_state();
-    oled_write_ln((led_usb_state.caps_lock) ? "Caps" : "", true);
-    oled_write_ln((led_usb_state.num_lock) ? "Num" : "", true);
-    oled_write_ln((led_usb_state.scroll_lock) ? "Scrl" : "", true);
-}
-
-bool oled_task_user(void) {
-    calculate_wpm();
-
-    if (oled_sleep()) {
-        draw_wpm_text();
-        print_status_narrow();
-    }
-    return false;
-}
-#endif
+} 
 
 //#endif

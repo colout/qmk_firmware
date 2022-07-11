@@ -18,6 +18,8 @@
 #include QMK_KEYBOARD_H
 #include "oled.c"
 #include "encoder.c"
+#include "custom_rgb.c"
+
 
 //Default keymap. This can be changed in Via. Use oled.c and encoder.c to change beavior that Via cannot change.
 
