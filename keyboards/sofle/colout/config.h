@@ -2,10 +2,10 @@
 
 /* USB Device descriptor parameter */
 #define VENDOR_ID       0xFC32
-#define PRODUCT_ID      0x0287
+#define PRODUCT_ID      0x0288
 #define DEVICE_VER      0x0001
-#define MANUFACTURER    JosefAdamcik
-#define PRODUCT         Sofle
+#define MANUFACTURER    Colout
+#define PRODUCT         Sofle Colout
 
 
 /*
@@ -38,6 +38,7 @@ B2 GP23
 B6 GP21
 */
 
+
 /* key matrix size */
 // Rows are doubled-up
 #define MATRIX_ROWS 10
@@ -49,6 +50,7 @@ B6 GP21
 #define DIODE_DIRECTION COL2ROW
 
 #define TAPPING_TERM 100
+#define DEBOUNCE 5
 
 /* encoder support */
 #define ENCODERS_PAD_A { GP28 }
@@ -58,11 +60,12 @@ B6 GP21
 #define ENCODER_RESOLUTION 2
 
 #define TAP_CODE_DELAY 10
-#define USB_POLLING_INTERVAL_MS 1
-#define QMK_KEYS_PER_SCAN 6
-#define DEBOUNCE 1
 
 /* communication between sides */
 #define USE_SERIAL
 #define SERIAL_USE_MULTI_TRANSACTION
+//#define SERIAL_USART_TX_PIN GP1
 #define SOFT_SERIAL_PIN GP1
+
+#define NO_ACTION_MACRO
+#define NO_ACTION_FUNCTION

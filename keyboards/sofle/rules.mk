@@ -1,9 +1,9 @@
 # MCU name
-MCU = atmega32u4
+MCU = RP2040
 
 # Bootloader selection
-BOOTLOADER = caterina
+BOOTLOADER = rp2040
+BOARD = QMK_PM2040
 
 SPLIT_KEYBOARD = yes
-DEFAULT_FOLDER = sofle/rev1
-SWAP_HANDS_ENABLE = yes
+DEFAULT_FOLDER = sofle/colout
