@@ -21,7 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #define L_BASE 0
-#define L_GAME 2
+#define L_GAME 1
+#define L_GAME2 2
 #define L_NAV 3
 #define L_MOUSE 5
 #define L_MEDIA 6
@@ -79,6 +80,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TAPPING_TERM_SHORT 170
 #define ACHORDIAN_TIMEOUT 800
 #define TAPPING_TERM_PER_KEY
+#define QUICK_TAP_TERM_PER_KEY
 
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET // Activates the double-tap behavior
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 200U // Timeout window in ms in which the double tap can occur.

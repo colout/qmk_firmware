@@ -29,6 +29,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define L_FUN 10
 #define L_GAME 11
 
+uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case LCTL_T(KC_ESC):
+            return 10000;  // Don't double tap to hold for escape (anoying for vim)
+        default:
+            return QUICK_TAP_TERM;
+    }
+}
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -58,11 +66,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
              LCTL_T(KC_ESC), LT(L_NAV, KC_ENT), LSFT_T(KC_TAB),                        KC_RSFT, LT(L_SYM, KC_SPC), LCTL_T(KC_BSPC)
                                       //`--------------------------'  `--------------------------'
-  ),  
+  ),
 
   [L_NAV] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_HOME, KC_PGDN, KC_PGUP, KC_END, KC_INS, XXXXXXX, 
+      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_HOME, KC_PGDN, KC_PGUP, KC_END, KC_INS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_CAPS, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, XXXXXXX,                      KC_LEFT, KC_DOWN,  KC_UP, KC_RIGHT, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -71,7 +79,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                           KC_LCTL, KC_ENT, KC_LSFT,    KC_LSFT, KC_SPC, KC_DEL
                                       //`--------------------------'  `--------------------------'
   ),
- 
+
 [L_MOUSE] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       XXXXXXX, KC_WH_L, KC_WH_D, KC_MS_U, KC_WH_U, KC_WH_R,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
@@ -83,7 +91,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                  KC_MS_BTN3, KC_MS_BTN1, KC_MS_BTN2,   KC_MS_BTN2, KC_MS_BTN1, KC_MS_BTN3
                                       //`--------------------------'  `--------------------------'
   ),
- 
+
 [L_MEDIA] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLU, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
@@ -106,7 +114,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                           KC_LCTL, KC_ENT, KC_LSFT,    KC_LSFT, KC_0, KC_BSPC
                                       //`--------------------------'  `--------------------------'
   ),
-      
+
 [L_SYM] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       XXXXXXX, KC_GRV, XXXXXXX, XXXXXXX, KC_LCBR, KC_RCBR,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
@@ -222,13 +230,13 @@ void oled_render_logo(void) {
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-        
+
     void setLayerRGB (uint8_t h, uint8_t s, uint8_t v, uint8_t mode) {
         rgb_matrix_enable_noeeprom();
         rgb_matrix_mode_noeeprom(mode);
         rgb_matrix_sethsv_noeeprom(h,s,v);
     }
-    
+
     switch(biton32(state)) {
         case L_NAV:
              setLayerRGB(HSV_BLUE, RGB_MATRIX_SOLID_REACTIVE);

@@ -70,11 +70,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // default but used in macros
 #undef TAPPING_TERM
-#define TAPPING_TERM 400 
-#define TAPPING_TERM_SHORT 170 
+#define TAPPING_TERM 400
+#define TAPPING_TERM_SHORT 170
 #define ACHORDIAN_TIMEOUT 800
 #define TAPPING_TERM_PER_KEY
-
+#define QUICK_TAP_TERM_PER_KEY
 
 // Enable rapid switch from tap to hold, disables double tap hold auto-repeat.
 #define TAPPING_FORCE_HOLD
