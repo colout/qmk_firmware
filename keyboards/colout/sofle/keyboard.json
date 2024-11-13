@@ -62,6 +62,7 @@
         "driver": "ws2812",
         "split_count": [36, 36],
         "sleep": true,
+        "max_brightness" : 150,
         "layout": [
             {"x": 96, "y": 40, "flags": 8},
             {"x": 16, "y": 20, "flags": 2},
