@@ -8,7 +8,7 @@
         "mousekey": true,
         "nkro": true,
         "encoder": false,
-        "oled": true
+        "oled": false
     },
     "bootloader" : "rp2040",
     "development_board" : "promicro_rp2040",
