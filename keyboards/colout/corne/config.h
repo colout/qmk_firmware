@@ -3,6 +3,17 @@
 #define I2C1_SDA_PIN GP2
 #define I2C1_SCL_PIN GP3
 
+#define SERIAL_USART_SPEED 57600 // halves keep disconnecdting. lower baud might be more stable until I find the hardware problem
+// | Speed | Bitbang                    | Half-duplex and Full-duplex |
+// | ----- | -------------------------- | --------------------------- |
+// | `0`   | 189000 baud (experimental) | 460800 baud                 |
+// | `1`   | 137000 baud (default)      | 230400 baud (default)       |
+// | `2`   | 75000 baud                 | 115200 baud                 |
+// | `3`   | 39000 baud                 | 57600 baud                  |
+// | `4`   | 26000 baud                 | 38400 baud                  |
+// | `5`   | 20000 baud                 | 19200 baud                  |
+
+
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET // Activates the double-tap behavior
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 200U // Timeout window in ms in which the double tap can occur.
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_LED GP17 // Specify a optional status led by GPIO number which blinks when entering the bootloader
